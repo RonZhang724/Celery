@@ -1,0 +1,27 @@
+version: '2'
+services:
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:latest
+    environment:
+      - RABBITMQ_DEFAULT_USER=ron
+      - RABBITMQ_DEFAULT_PASS=ron123
+    ports:
+      - "8080:8080"
+
+  worker:
+    build:
+      context: .
+      dockerfile: dockerfile
+    volumes:
+      - .:/app
+    links:
+      - rabbit
+    depends_on:
+      - rabbit
+
+  flower:
+    image: mher/flower
+    command: ["flower", "--broker=amqp://ron:ron123@localhost/ron_vhost", "--port=8080"]
+    ports:
+      - 8080:8888
